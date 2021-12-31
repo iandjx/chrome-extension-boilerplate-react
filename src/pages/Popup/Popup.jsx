@@ -9,6 +9,21 @@ const Popup = () => {
   const [color, setColor] = useState();
   const [URL, setURL] = useState();
   const [collection, setCollection] = useState();
+  const [emailAddress, setEmailAddress] = useState();
+
+  const handleEmailChange = (e) => {
+    chrome.storage.sync.set({ emailAddress: e.target.value });
+    setEmailAddress(e.target.value);
+  };
+
+  useEffect(() => {
+    chrome.storage.sync.get('emailAddress', ({ emailAddress }) => {
+      if (emailAddress) {
+        setEmailAddress(emailAddress);
+      }
+    });
+  }, []);
+
   useEffect(() => {
     chrome.storage.sync.get('color', ({ color }) => {
       setColor(color);
@@ -39,11 +54,15 @@ const Popup = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <div>{URL}</div>
-        <div>{collection}</div>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>{color}</p>
+        <div>URL: {URL}</div>
+        <div>Collection: {collection}</div>
+        <div>Email: {emailAddress}</div>
         <button onClick={changeColor}>Change Background Color</button>
+        <input
+          type="text"
+          value={emailAddress}
+          onChange={(e) => handleEmailChange(e)}
+        />
       </header>
     </div>
   );
