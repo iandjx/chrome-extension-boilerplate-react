@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import logo from '../../assets/img/logo.svg';
 import Greetings from '../../containers/Greetings/Greetings';
 import './Popup.css';
+
+const regex = /collection\/(.*)/;
+
 const Popup = () => {
   const [color, setColor] = useState();
   const [URL, setURL] = useState();
+  const [collection, setCollection] = useState();
   useEffect(() => {
     chrome.storage.sync.get('color', ({ color }) => {
       setColor(color);
@@ -23,10 +27,20 @@ const Popup = () => {
     getCurrentTab();
   }, []);
 
+  useEffect(() => {
+    if (URL) {
+      const match = URL.match(regex);
+      if (match[1]) {
+        setCollection(match[1]);
+      }
+    }
+  }, [URL]);
+
   return (
     <div className="App">
       <header className="App-header">
         <div>{URL}</div>
+        <div>{collection}</div>
         <img src={logo} className="App-logo" alt="logo" />
         <p>{color}</p>
         <button onClick={changeColor}>Change Background Color</button>
