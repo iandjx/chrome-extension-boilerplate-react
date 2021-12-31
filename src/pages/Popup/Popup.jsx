@@ -4,16 +4,29 @@ import Greetings from '../../containers/Greetings/Greetings';
 import './Popup.css';
 const Popup = () => {
   const [color, setColor] = useState();
-
+  const [URL, setURL] = useState();
   useEffect(() => {
     chrome.storage.sync.get('color', ({ color }) => {
       setColor(color);
     });
   }, []);
 
+  useEffect(() => {
+    async function getCurrentTab() {
+      let queryOptions = { active: true, currentWindow: true };
+      let [tab] = await chrome.tabs.query(queryOptions);
+
+      chrome.storage.sync.set({ currentURL: tab.url });
+      console.log('currentURL set to ', tab.url);
+      setURL(tab.url);
+    }
+    getCurrentTab();
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
+        <div>{URL}</div>
         <img src={logo} className="App-logo" alt="logo" />
         <p>{color}</p>
         <button onClick={changeColor}>Change Background Color</button>

@@ -27,5 +27,11 @@
       "matches": []
     }
   ],
-  "permissions": ["storage", "declarativeContent", "activeTab", "scripting"]
+  "permissions": [
+    "storage",
+    "declarativeContent",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ]
 }
