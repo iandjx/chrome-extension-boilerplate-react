@@ -63,7 +63,8 @@ const Popup = () => {
   useEffect(() => {
     if (URL) {
       const match = URL.match(regex);
-      if (match[1]) {
+      console.log(match);
+      if (match && match[1]) {
         setCollection(match[1]);
       }
     }
@@ -74,6 +75,17 @@ const Popup = () => {
       (data) => console.log(data)
     );
   }, []);
+  if (!setCollection) {
+    return <div />;
+  }
+
+  if (!collection) {
+    return (
+      <div className="container" style={{ width: '300px' }}>
+        <h4 className=" ">This will only work in open sea</h4>
+      </div>
+    );
+  }
 
   return (
     <div className="App">

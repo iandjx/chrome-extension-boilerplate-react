@@ -15,7 +15,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "matches": ["https://opensea.io/collection/*"],
       "js": ["contentScript.bundle.js"],
       "css": ["content.styles.css"]
     }
@@ -34,6 +34,8 @@
     "scripting",
     "tabs"
   ],
+  "host_permissions": ["*://*.opensea.io/collection/*"],
+
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://maxcdn.bootstrapcdn.com;;"
   }
