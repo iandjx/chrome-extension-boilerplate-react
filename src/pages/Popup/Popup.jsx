@@ -12,6 +12,8 @@ const GET_ACCOUNT_ID = gql`
   }
 `;
 
+const ADD_TO_WATCHLIST = gql``;
+
 const Popup = () => {
   const [URL, setURL] = useState();
   const [collection, setCollection] = useState();
@@ -194,7 +196,7 @@ const Popup = () => {
           <button className="btn btn-primary " onClick={handleButtonClick}>
             Add To Watchlist
           </button>
-          <button className="btn btn-secondary " onClick={handleButtonClick}>
+          <button className="btn btn-secondary " onClick={() => setID()}>
             Update Email
           </button>
         </div>
