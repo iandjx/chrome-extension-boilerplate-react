@@ -4,34 +4,43 @@ import { request, gql } from 'graphql-request';
 const siteRegex = /opensea\.io/;
 const collectionRegex = /opensea\.io\/collection\/(.*)/;
 
-// const GET_POKEMONS = gql`
-//   query pokemons($limit: Int, $offset: Int) {
-//     pokemons(limit: $limit, offset: $offset) {
-//       count
-//       next
-//       previous
-//       status
-//       message
-//       results {
-//         url
-//         name
-//         image
-//       }
-//     }
-//   }
-// `;
+const GET_ACCOUNT_ID = gql`
+  query GetAccountByEmail($email: String!) {
+    getAccountByEmail(email: $email) {
+      id
+    }
+  }
+`;
+
 const Popup = () => {
   const [URL, setURL] = useState();
   const [collection, setCollection] = useState();
-  const [emailAddress, setEmailAddress] = useState();
+  const [ID, setID] = useState();
   const [inOpenSea, setInOpenSea] = useState(false);
   const [collectionImage, setCollectionImage] = useState();
   const [tempEmail, setTempEmail] = useState();
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState();
 
-  const handleEmailSet = (emailAddress) => {
-    chrome.storage.sync.set({ emailAddress });
-    setEmailAddress(emailAddress);
+  const handleEmailSet = async (emailAddress) => {
+    setLoading(true);
+    setErrorMessage();
+    const res = await request('http://localhost:8000/graphql', GET_ACCOUNT_ID, {
+      email: emailAddress,
+    }).catch((err) => {
+      const error = err.response;
+      setLoading(false);
+      setErrorMessage(error.errors[0].message);
+      return;
+    });
+
+    const {
+      getAccountByEmail: { id },
+    } = res;
+
+    await chrome.storage.sync.set({ ID: id });
+    setID(id);
+    setLoading(false);
   };
 
   const handleButtonClick = () => {
@@ -39,17 +48,11 @@ const Popup = () => {
   };
 
   useEffect(() => {
-    chrome.storage.sync.get('emailAddress', ({ emailAddress }) => {
-      if (emailAddress) {
-        setEmailAddress(emailAddress);
+    chrome.storage.sync.get('ID', ({ ID }) => {
+      if (ID) {
+        setID(ID);
       }
     });
-
-    // chrome.storage.sync.get('collectionImage', ({ collectionImage }) => {
-    //   if (collectionImage) {
-    //     setCollectionImage(collectionImage);
-    //   }
-    // });
   }, []);
 
   useEffect(() => {
@@ -116,9 +119,10 @@ const Popup = () => {
     );
   }
 
-  if (!emailAddress) {
+  if (!ID) {
     return (
       <div style={{ width: '380px' }}>
+        {console.log('id chck', ID)}
         <div className="d-flex flex-column" style={{ padding: '1em' }}>
           <h4 className="bg-secondary text-white p-2">Insider Mobile</h4>
           <p className=" ">
