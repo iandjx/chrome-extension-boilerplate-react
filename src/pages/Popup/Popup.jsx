@@ -130,6 +130,11 @@ const Popup = () => {
           <p className=" ">
             To get started enter your Insider Mobile email address
           </p>
+          {errorMessage && (
+            <div className="alert alert-danger" role="alert">
+              {errorMessage}
+            </div>
+          )}
           <div class="input-group mb-3">
             <input
               type="text"
