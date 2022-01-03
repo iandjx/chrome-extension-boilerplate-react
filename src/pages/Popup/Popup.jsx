@@ -12,7 +12,17 @@ const GET_ACCOUNT_ID = gql`
   }
 `;
 
-const ADD_TO_WATCHLIST = gql``;
+const ADD_TO_WATCHLIST = gql`
+  mutation CREATE_WATCHLIST(
+    $accountId: ID!
+    $ticker: String!
+    $variant: String!
+  ) {
+    createWatchlist(accountId: $accountId, ticker: $ticker, variant: $variant) {
+      ok
+    }
+  }
+`;
 
 const Popup = () => {
   const [URL, setURL] = useState();
@@ -23,6 +33,26 @@ const Popup = () => {
   const [tempEmail, setTempEmail] = useState();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
+  const [successMessage, setSuccessMessage] = useState();
+
+  const handleAddToWatchlist = async (accountId, ticker) => {
+    setLoading(true);
+    const res = await request(
+      'http://localhost:8000/graphql',
+      ADD_TO_WATCHLIST,
+      { accountId, ticker, variant: 'NFT' }
+    ).catch(() => {
+      setErrorMessage('Collection already in watchlist');
+      setLoading(false);
+    });
+    const {
+      createWatchlist: { ok },
+    } = res;
+    if (ok) {
+    }
+    setLoading(false);
+    setSuccessMessage(`Collection ${collection} added to watchlist.`);
+  };
 
   const handleEmailSet = async (emailAddress) => {
     setLoading(true);
@@ -197,9 +227,26 @@ const Popup = () => {
             {collection.replace('-', ' ')}
           </h4>
         </div>
-        <div className="d-flex justify-content-around mt-3">
-          <button className="btn btn-primary " onClick={handleButtonClick}>
-            Add To Watchlist
+        {successMessage && (
+          <div className="alert alert-success mt-2" role="alert">
+            {successMessage}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="alert alert-danger text-truncate mt-2" role="alert">
+            {errorMessage}
+          </div>
+        )}
+        <div className="d-flex justify-content-between mt-2">
+          <button
+            className="btn btn-primary "
+            onClick={() => handleAddToWatchlist(ID, collection)}
+          >
+            {loading ? (
+              <div class="spinner-border spinner-border-sm" role="status" />
+            ) : (
+              'Add To Watch List'
+            )}
           </button>
           <button className="btn btn-secondary " onClick={() => setID()}>
             Update Email
