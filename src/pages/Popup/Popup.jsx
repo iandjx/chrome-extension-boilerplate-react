@@ -126,11 +126,33 @@ const Popup = () => {
     }
   }, [URL]);
 
-  // useEffect(() => {
-  //   request('https://graphql-pokeapi.graphcdn.app/', GET_POKEMONS).then(
-  //     (data) => console.log(data)
-  //   );
-  // }, []);
+  useEffect(() => {
+    if (ID && collection) {
+      console.log('running');
+      console.log(ID);
+      console.log(collection);
+      setLoading(true);
+      request('http://localhost:8000/graphql', ADD_TO_WATCHLIST, {
+        accountId: ID,
+        ticker: collection,
+        variant: 'NFT',
+      })
+        .then((res) => {
+          const {
+            createWatchlist: { ok },
+          } = res;
+          if (ok) {
+            setLoading(false);
+            setSuccessMessage(`Collection ${collection} added to watchlist.`);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setErrorMessage('Collection already in watchlist');
+          setLoading(false);
+        });
+    }
+  }, [ID, collection]);
 
   if (!inOpenSea) {
     return (
@@ -209,6 +231,14 @@ const Popup = () => {
         </div>
       </div>
     );
+  }
+  if (successMessage) {
+    <div style={{ width: '380px' }}>
+      <div className="d-flex flex-column" style={{ padding: '1em' }}>
+        <h4 className="bg-secondary text-white p-2">Insider Mobile</h4>
+        <p>Collection Added to Watchlist</p>
+      </div>
+    </div>;
   }
 
   return (

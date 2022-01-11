@@ -194,12 +194,23 @@ function App() {
   );
 }
 
-var temp = document.createElement('div');
-temp.setAttribute('style', 'height: 48px; display:flex;');
-var container = document.querySelector(
-  '#main > div > div > div > div:nth-child(2) > div:nth-child(3)'
-);
+setInterval(() => {
+  console.log('hello');
+  if (
+    !document.getElementById('insider') &&
+    document.querySelector(
+      '#main > div > div > div > div:nth-child(2) > div:nth-child(3)'
+    )
+  ) {
+    console.log('no insider but in collection');
+    var temp = document.createElement('div');
+    temp.setAttribute('style', 'height: 48px; display:flex;');
+    temp.setAttribute('id', 'insider');
 
-render(<App />, temp);
-
-container.appendChild(temp);
+    render(<App />, temp);
+    var container = document.querySelector(
+      '#main > div > div > div > div:nth-child(2) > div:nth-child(3)'
+    );
+    container.appendChild(temp);
+  }
+}, 2500);
