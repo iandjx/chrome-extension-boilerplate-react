@@ -1,28 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { request, gql } from 'graphql-request';
-
+import { request } from 'graphql-request';
+import {
+  ADD_TO_WATCHLIST,
+  GET_ACCOUNT_ID,
+  GET_WATCHLIST_BY_ACCOUNT_ID,
+} from './queries';
 const siteRegex = /opensea\.io/;
 const collectionRegex = /opensea\.io\/collection\/(.*)/;
-
-const GET_ACCOUNT_ID = gql`
-  query GetAccountByEmail($email: String!) {
-    getAccountByEmail(email: $email) {
-      id
-    }
-  }
-`;
-
-const ADD_TO_WATCHLIST = gql`
-  mutation CREATE_WATCHLIST(
-    $accountId: ID!
-    $ticker: String!
-    $variant: String!
-  ) {
-    createWatchlist(accountId: $accountId, ticker: $ticker, variant: $variant) {
-      ok
-    }
-  }
-`;
 
 const Popup = () => {
   const [URL, setURL] = useState();
@@ -79,6 +63,11 @@ const Popup = () => {
     chrome.tabs.create({ url: 'https://opensea.io/' });
   };
 
+  // useEffect(() => {
+  //   const font = new FontFace('inter', 'url(./fonts/Inter-Bold.tff)');
+  //   document.fonts.add(font);
+  // }, []);
+
   useEffect(() => {
     chrome.storage.sync.get('ID', ({ ID }) => {
       if (ID) {
@@ -128,10 +117,21 @@ const Popup = () => {
 
   useEffect(() => {
     if (ID && collection) {
-      console.log('running');
-      console.log(ID);
-      console.log(collection);
       setLoading(true);
+
+      request('http;//localhost:8000/graphql', GET_WATCHLIST_BY_ACCOUNT_ID, {
+        accountId: ID,
+      }).then((res) => {
+        const { getWatchlistByAccount } = res;
+        const collectionExist = getWatchlistByAccount.find(
+          (col) => col.ticker === collection
+        );
+        if (collectionExist) {
+          setErrorMessage(`${collection} already in users watchlist`);
+          return;
+        }
+      });
+
       request('http://localhost:8000/graphql', ADD_TO_WATCHLIST, {
         accountId: ID,
         ticker: collection,
@@ -253,7 +253,10 @@ const Popup = () => {
             style={{ height: '50px', width: '50px' }}
           />
 
-          <h4 className="ml-2" style={{ textTransform: 'capitalize' }}>
+          <h4
+            className="ml-2"
+            style={{ textTransform: 'capitalize', fontFamily: 'inter' }}
+          >
             {collection.replace('-', ' ')}
           </h4>
         </div>
