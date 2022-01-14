@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { request } from 'graphql-request';
 import {
   ADD_TO_WATCHLIST,
-  DELETE_FROM_WATCHLIST,
   GET_ACCOUNT_ID,
   GET_WATCHLIST_BY_ACCOUNT_ID,
 } from './queries';
 import AddedToWatchlist from './components/AddedToWatchlist';
 import NotInOpenSea from './components/NotInOpenSea';
+import InOpenSea from './components/InOpenSea';
+import InCollectionList from './components/InCollectionList';
+
 const siteRegex = /opensea\.io/;
 const collectionRegex = /opensea\.io\/collection\/(.*)/;
+const collectionsRegex = /explore-collections/;
 
 const Popup = () => {
   const [URL, setURL] = useState();
@@ -22,6 +25,7 @@ const Popup = () => {
   const [errorMessage, setErrorMessage] = useState();
   const [isCollectionAdded, setIsCollectionAdded] = useState();
   const [isNewlyAdded, setIsNewlyAdded] = useState();
+  const [inCollections, setInCollections] = useState();
 
   const handleAddToWatchlist = async (accountId, ticker) => {
     setLoading(true);
@@ -100,10 +104,14 @@ const Popup = () => {
   useEffect(() => {
     if (URL) {
       const match = URL.match(siteRegex);
+      const inCollectionsMatch = URL.match(collectionsRegex);
       if (match && match[0]) {
         setInOpenSea(true);
         const collectionMatch = URL.match(collectionRegex);
 
+        if (inCollectionsMatch && inCollectionsMatch[0]) {
+          setInCollections(true);
+        }
         if (collectionMatch && collectionMatch[1]) {
           setCollection(collectionMatch[1]);
         }
@@ -166,6 +174,22 @@ const Popup = () => {
     );
   }
 
+  if (inCollections) {
+    return (
+      <div style={{ width: '360px', height: '152px' }}>
+        <InCollectionList />
+      </div>
+    );
+  }
+
+  if (!collection) {
+    return (
+      <div style={{ width: '380px' }}>
+        <InOpenSea />
+      </div>
+    );
+  }
+
   if (!ID) {
     return (
       <div style={{ width: '380px' }}>
@@ -212,19 +236,6 @@ const Popup = () => {
     );
   }
 
-  if (!collection) {
-    return (
-      <div style={{ width: '380px' }}>
-        <div className="d-flex flex-column" style={{ padding: '1em' }}>
-          <h4 className="bg-secondary text-white p-2">Insider Mobile</h4>
-          <p>
-            Visit a collection here in open sea to start adding collections to
-            your watch list
-          </p>
-        </div>
-      </div>
-    );
-  }
   if (isCollectionAdded) {
     return (
       <div style={{ width: '360px', height: '152px' }}>
