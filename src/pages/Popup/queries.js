@@ -1,6 +1,5 @@
 import { gql } from 'graphql-request';
 export const GET_ACCOUNT_ID = gql`
-import { gql } from 'graphql-request';
   query GetAccountByEmail($email: String!) {
     getAccountByEmail(email: $email) {
       id
@@ -25,6 +24,14 @@ export const GET_WATCHLIST_BY_ACCOUNT_ID = gql`
     getWatchlistByAccount(accountId: $accountId, variant: "NFT") {
       id
       ticker
+    }
+  }
+`;
+
+export const DELETE_FROM_WATCHLIST = gql`
+  mutation DELETE_FROM_WATCHLIST($accountId: ID!, $ticker: String!) {
+    deleteWatchlist(accountId: $accountId, ticker: $ticker) {
+      ok
     }
   }
 `;

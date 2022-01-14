@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { request } from 'graphql-request';
 import {
   ADD_TO_WATCHLIST,
+  DELETE_FROM_WATCHLIST,
   GET_ACCOUNT_ID,
   GET_WATCHLIST_BY_ACCOUNT_ID,
 } from './queries';
+import AddedToWatchlist from './AddedToWatchlist';
 const siteRegex = /opensea\.io/;
 const collectionRegex = /opensea\.io\/collection\/(.*)/;
 
@@ -17,7 +19,8 @@ const Popup = () => {
   const [tempEmail, setTempEmail] = useState();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
-  const [successMessage, setSuccessMessage] = useState();
+  const [isCollectionAdded, setIsCollectionAdded] = useState();
+  const [isNewlyAdded, setIsNewlyAdded] = useState();
 
   const handleAddToWatchlist = async (accountId, ticker) => {
     setLoading(true);
@@ -35,7 +38,8 @@ const Popup = () => {
     if (ok) {
     }
     setLoading(false);
-    setSuccessMessage(`Collection ${collection} added to watchlist.`);
+    isCollectionAdded(true);
+    isNewlyAdded(true);
   };
 
   const handleEmailSet = async (emailAddress) => {
@@ -62,11 +66,6 @@ const Popup = () => {
   const handleButtonClick = () => {
     chrome.tabs.create({ url: 'https://opensea.io/' });
   };
-
-  // useEffect(() => {
-  //   const font = new FontFace('inter', 'url(./fonts/Inter-Bold.tff)');
-  //   document.fonts.add(font);
-  // }, []);
 
   useEffect(() => {
     chrome.storage.sync.get('ID', ({ ID }) => {
@@ -117,21 +116,28 @@ const Popup = () => {
 
   useEffect(() => {
     if (ID && collection) {
+      console.log('checking if exist');
       setLoading(true);
 
-      request('http;//localhost:8000/graphql', GET_WATCHLIST_BY_ACCOUNT_ID, {
+      request('http://localhost:8000/graphql', GET_WATCHLIST_BY_ACCOUNT_ID, {
         accountId: ID,
       }).then((res) => {
         const { getWatchlistByAccount } = res;
         const collectionExist = getWatchlistByAccount.find(
           (col) => col.ticker === collection
         );
+
         if (collectionExist) {
-          setErrorMessage(`${collection} already in users watchlist`);
-          return;
+          setIsCollectionAdded(true);
+        } else {
+          setIsCollectionAdded(false);
         }
       });
+    }
+  }, [ID, collection]);
 
+  useEffect(() => {
+    if (isCollectionAdded === false) {
       request('http://localhost:8000/graphql', ADD_TO_WATCHLIST, {
         accountId: ID,
         ticker: collection,
@@ -143,7 +149,8 @@ const Popup = () => {
           } = res;
           if (ok) {
             setLoading(false);
-            setSuccessMessage(`Collection ${collection} added to watchlist.`);
+            setIsNewlyAdded(true);
+            setIsCollectionAdded(true);
           }
         })
         .catch((err) => {
@@ -152,7 +159,7 @@ const Popup = () => {
           setLoading(false);
         });
     }
-  }, [ID, collection]);
+  }, [ID, collection, isCollectionAdded]);
 
   if (!inOpenSea) {
     return (
@@ -232,13 +239,17 @@ const Popup = () => {
       </div>
     );
   }
-  if (successMessage) {
-    <div style={{ width: '380px' }}>
-      <div className="d-flex flex-column" style={{ padding: '1em' }}>
-        <h4 className="bg-secondary text-white p-2">Insider Mobile</h4>
-        <p>Collection Added to Watchlist</p>
+  if (isCollectionAdded) {
+    return (
+      <div style={{ width: '360px', height: '152px' }}>
+        <AddedToWatchlist
+          newlyAdded={isNewlyAdded}
+          collectionImage={collectionImage}
+          accountId={ID}
+          collection={collection}
+        />
       </div>
-    </div>;
+    );
   }
 
   return (
@@ -253,18 +264,11 @@ const Popup = () => {
             style={{ height: '50px', width: '50px' }}
           />
 
-          <h4
-            className="ml-2"
-            style={{ textTransform: 'capitalize', fontFamily: 'inter' }}
-          >
+          <h4 className="ml-2" style={{ textTransform: 'capitalize' }}>
             {collection.replace('-', ' ')}
           </h4>
         </div>
-        {successMessage && (
-          <div className="alert alert-success mt-2" role="alert">
-            {successMessage}
-          </div>
-        )}
+
         {errorMessage && (
           <div className="alert alert-danger text-truncate mt-2" role="alert">
             {errorMessage}
