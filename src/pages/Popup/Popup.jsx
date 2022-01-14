@@ -6,7 +6,8 @@ import {
   GET_ACCOUNT_ID,
   GET_WATCHLIST_BY_ACCOUNT_ID,
 } from './queries';
-import AddedToWatchlist from './AddedToWatchlist';
+import AddedToWatchlist from './components/AddedToWatchlist';
+import NotInOpenSea from './components/NotInOpenSea';
 const siteRegex = /opensea\.io/;
 const collectionRegex = /opensea\.io\/collection\/(.*)/;
 
@@ -61,10 +62,6 @@ const Popup = () => {
     await chrome.storage.sync.set({ ID: id });
     setID(id);
     setLoading(false);
-  };
-
-  const handleButtonClick = () => {
-    chrome.tabs.create({ url: 'https://opensea.io/' });
   };
 
   useEffect(() => {
@@ -163,19 +160,8 @@ const Popup = () => {
 
   if (!inOpenSea) {
     return (
-      <div style={{ width: '380px' }}>
-        <div className="d-flex flex-column" style={{ padding: '1em' }}>
-          <h4 className="bg-secondary text-white p-2">Insider Mobile</h4>
-          <p className=" ">
-            This extension only works in Open Sea NFT Marketplace
-          </p>
-          <button
-            className="btn btn-primary mx-auto"
-            onClick={handleButtonClick}
-          >
-            Head to OpenSea.io
-          </button>
-        </div>
+      <div style={{ width: '360px', height: '152px' }}>
+        <NotInOpenSea />
       </div>
     );
   }

@@ -1,9 +1,9 @@
 import React from 'react';
-import icon from '../../assets/img/insider_icon.svg';
+import icon from '../../../assets/img/insider_icon.svg';
 import Button from 'react-bootstrap/button';
 import { request } from 'graphql-request';
 
-import { DELETE_FROM_WATCHLIST } from './queries';
+import { DELETE_FROM_WATCHLIST } from '../queries';
 const removeFromWatchlist = async (accountId, ticker) => {
   await request('http://localhost:8000/graphql', DELETE_FROM_WATCHLIST, {
     accountId,
