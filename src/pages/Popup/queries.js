@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
 export const GET_ACCOUNT_ID = gql`
-  query GetAccountByEmail($email: String!) {
-    getAccountByEmail(email: $email) {
+  query ACCOUNT($email: String!) {
+    account(input: { email: $email }) {
       id
     }
   }

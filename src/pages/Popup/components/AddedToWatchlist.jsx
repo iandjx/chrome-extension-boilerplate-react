@@ -37,15 +37,15 @@ const AddedToWatchlist = ({
         >
           Added to watchlist
         </span>
-        {/* {newlyAdded && ( */}
-        <Button
-          variant="link"
-          style={{ fontWeight: 500, color: '#3C3C4399', marginLeft: 'auto' }}
-          onClick={() => removeFromWatchlist(accountId, collection)}
-        >
-          Undo
-        </Button>
-        {/* )} */}
+        {newlyAdded && (
+          <Button
+            variant="link"
+            style={{ fontWeight: 500, color: '#3C3C4399', marginLeft: 'auto' }}
+            onClick={() => removeFromWatchlist(accountId, collection)}
+          >
+            Undo
+          </Button>
+        )}
       </div>
       <div
         style={{
