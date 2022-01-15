@@ -20,6 +20,10 @@ const Login = ({ setID }) => {
       setErrorMessage(error.errors[0].message);
       return;
     });
+    if (res.account === null) {
+      setLoading(false);
+      setErrorMessage('No account linked to that email');
+    }
 
     const {
       account: { id },
