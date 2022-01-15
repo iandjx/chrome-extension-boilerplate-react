@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-boilerplate-react",
+  "name": "insider-mobile-chrome-extension",
   "version": "4.2.0",
-  "description": "A chrome extension boilerplate built with React 17, Webpack 5, and Webpack Dev Server 4",
+  "description": "Add collections to your Insider Mobile Account",
   "license": "MIT",
   "repository": {
     "type": "git",
