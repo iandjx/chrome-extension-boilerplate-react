@@ -26,20 +26,13 @@ const Login = ({ setID }) => {
     } = res;
 
     await chrome.storage.sync.set({ ID: id });
-    let queryOptions = { active: true, currentWindow: true };
 
-    let [tab] = await chrome.tabs.query(queryOptions);
-
-    await chrome.scripting.executeScript({
-      target: {
-        tabId: tab.id,
-      },
-      files: ['contentScript.bundle.js'],
-    });
     setID(id);
     setLoading(false);
-    // chrome.tabs.reload(tab.id);
-    chrome.tabs.sendMessage(tab.id, { message: 'start' });
+
+    let queryOptions = { active: true, currentWindow: true };
+    let [tab] = await chrome.tabs.query(queryOptions);
+    chrome.tabs.sendMessage(tab.id, { message: 'reload' });
   };
   return (
     <div className="p-3 d-flex flex-column">

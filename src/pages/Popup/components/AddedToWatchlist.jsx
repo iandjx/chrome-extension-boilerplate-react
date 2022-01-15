@@ -12,6 +12,10 @@ const removeFromWatchlist = async (accountId, ticker) => {
   }).catch((err) => {
     throw err;
   });
+
+  let queryOptions = { active: true, currentWindow: true };
+  let [tab] = await chrome.tabs.query(queryOptions);
+  chrome.tabs.sendMessage(tab.id, { message: 'reload' });
   window.close();
 };
 const AddedToWatchlist = ({

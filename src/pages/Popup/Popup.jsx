@@ -106,6 +106,12 @@ const Popup = () => {
         if (ok) {
           setIsNewlyAdded(true);
           setIsCollectionAdded(true);
+
+          let queryOptions = { active: true, currentWindow: true };
+          chrome.tabs.query(queryOptions).then((res) => {
+            const [tab] = res;
+            chrome.tabs.sendMessage(tab.id, { message: 'reload' });
+          });
         }
       });
     }

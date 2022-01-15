@@ -5,6 +5,7 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { GET_WATCHLIST_BY_ACCOUNT_ID } from './../Popup/queries';
 
 const siteRegex = /opensea\.io/;
 const collectionRegex = /opensea\.io\/collection\/(.*)/;
@@ -55,6 +56,7 @@ function SetEmailModal({ setID, ...props }) {
     setLoading(false);
     closeModal();
   };
+
   return (
     <Modal
       {...props}
@@ -110,12 +112,13 @@ function SetEmailModal({ setID, ...props }) {
 }
 
 function App() {
-  const [modalShow, setModalShow] = React.useState(false);
-  const [ID, setID] = React.useState();
-  const [loading, setLoading] = React.useState();
-  const [errorMessage, setErrorMessage] = React.useState();
-  const [successMessage, setSuccessMessage] = React.useState();
+  const [modalShow, setModalShow] = useState(false);
+  const [ID, setID] = useState();
+  const [loading, setLoading] = useState();
+  const [errorMessage, setErrorMessage] = useState();
+  const [successMessage, setSuccessMessage] = useState();
   const [collection, setCollection] = useState();
+  const [isCollectionAdded, setIsCollectionAdded] = useState();
 
   useEffect(() => {
     chrome.storage.sync.get('ID', ({ ID }) => {
@@ -125,6 +128,25 @@ function App() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (ID && collection) {
+      request('http://localhost:8000/graphql', GET_WATCHLIST_BY_ACCOUNT_ID, {
+        accountId: ID,
+      }).then((res) => {
+        const { getWatchlistByAccount } = res;
+        const collectionExist = getWatchlistByAccount.find(
+          (col) => col.ticker === collection
+        );
+
+        if (collectionExist) {
+          setIsCollectionAdded(true);
+        } else {
+          setIsCollectionAdded(false);
+        }
+      });
+    }
+  }, [ID, collection]);
 
   useEffect(() => {
     const match = window.location.href.match(siteRegex);
@@ -160,6 +182,10 @@ function App() {
       setSuccessMessage(`Collection ${collection} added to watchlist.`);
     }
   };
+  if (isCollectionAdded) {
+    return <div>added</div>;
+  }
+
   if (ID) {
     return <div>nice</div>;
   }
@@ -199,7 +225,7 @@ function App() {
 }
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.message === 'start') {
+  if (request.message === 'reload') {
     start();
   }
 });
