@@ -3,20 +3,11 @@ import { render } from 'react-dom';
 import { request, gql } from 'graphql-request';
 import React from 'react';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { GET_WATCHLIST_BY_ACCOUNT_ID } from './../Popup/queries';
 
 const siteRegex = /opensea\.io/;
 const collectionRegex = /opensea\.io\/collection\/(.*)/;
-
-const GET_ACCOUNT_ID = gql`
-  query GetAccountByEmail($email: String!) {
-    getAccountByEmail(email: $email) {
-      id
-    }
-  }
-`;
 
 const ADD_TO_WATCHLIST = gql`
   mutation CREATE_WATCHLIST(
@@ -31,11 +22,9 @@ const ADD_TO_WATCHLIST = gql`
 `;
 
 function App() {
-  const [modalShow, setModalShow] = useState(false);
   const [ID, setID] = useState();
   const [loading, setLoading] = useState();
   const [errorMessage, setErrorMessage] = useState();
-  const [successMessage, setSuccessMessage] = useState();
   const [collection, setCollection] = useState();
   const [isCollectionAdded, setIsCollectionAdded] = useState();
 
@@ -80,61 +69,65 @@ function App() {
   }, []);
 
   const handleAddToWatchlist = async (accountId, ticker) => {
-    if (!ID) {
-      setModalShow(true);
-    } else {
-      setLoading(true);
-      const res = await request(
-        'http://localhost:8000/graphql',
-        ADD_TO_WATCHLIST,
-        { accountId, ticker, variant: 'NFT' }
-      ).catch(() => {
-        setErrorMessage('Collection already in watchlist');
-        setLoading(false);
-      });
-      const {
-        createWatchlist: { ok },
-      } = res;
-      if (ok) {
-      }
+    setLoading(true);
+    const res = await request(
+      'http://localhost:8000/graphql',
+      ADD_TO_WATCHLIST,
+      { accountId, ticker, variant: 'NFT' }
+    ).catch(() => {
+      setErrorMessage('Collection already in watchlist');
       setLoading(false);
-      setSuccessMessage(`Collection ${collection} added to watchlist.`);
+    });
+    const {
+      createWatchlist: { ok },
+    } = res;
+    if (ok) {
     }
+    setLoading(false);
+    setIsCollectionAdded(true);
   };
+
   if (isCollectionAdded) {
-    return <div>added</div>;
+    return (
+      <Button
+        className="mt-3 border-0"
+        disabled
+        style={{
+          width: '212px',
+          height: '44px',
+          boxShadow: '0px, 2px, 8px, #117BEE',
+          background: '#E5E5EA',
+          color: '#5B5B67',
+          borderRadius: '8px',
+          fontWeight: '600',
+          fontSize: '16px',
+        }}
+      >
+        Already in watchlist
+      </Button>
+    );
   }
 
   if (ID) {
-    return <div>nice</div>;
+    return (
+      <Button
+        className="mt-3"
+        style={{
+          width: '212px',
+          height: '44px',
+          boxShadow: '0px, 2px, 8px, #117BEE',
+          background: '#117BEE',
+          borderRadius: '8px',
+          fontWeight: '600',
+          fontSize: '16px',
+        }}
+        onClick={() => handleAddToWatchlist(ID, collection)}
+      >
+        Add to watchlist
+      </Button>
+    );
   }
-  return (
-    <>
-      <div className="mt-auto">
-        {successMessage && (
-          <div className="alert alert-success mt-2" role="alert">
-            {successMessage}
-          </div>
-        )}
-        {errorMessage && (
-          <div className="alert alert-danger text-truncate mt-2" role="alert">
-            {errorMessage}
-          </div>
-        )}
-        <Button
-          variant="primary"
-          onClick={() => handleAddToWatchlist(ID, collection)}
-          disabled={loading}
-        >
-          {loading ? (
-            <div className="spinner-border spinner-border-sm" role="status" />
-          ) : (
-            'Add To Watchlist'
-          )}
-        </Button>
-      </div>
-    </>
-  );
+  return <div />;
 }
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -147,12 +140,16 @@ function start() {
   const toDelete = document.getElementById('insider');
   toDelete.remove();
   var temp = document.createElement('div');
-  temp.setAttribute('style', 'height: 48px; display:flex;');
+  temp.setAttribute('style', 'display:flex; justify-content:center; ');
   temp.setAttribute('id', 'insider');
 
   render(<App />, temp);
   var container = document.querySelector(
     '#main > div > div > div > div:nth-child(2) > div:nth-child(4)'
+  );
+  container.setAttribute(
+    'style',
+    'flex-direction: column; align-items:center;'
   );
   container.appendChild(temp);
 }
@@ -172,7 +169,10 @@ setInterval(() => {
     var container = document.querySelector(
       '#main > div > div > div > div:nth-child(2) > div:nth-child(4)'
     );
-    container.setAttribute('style', 'flex-direction: column;');
+    container.setAttribute(
+      'style',
+      'flex-direction: column; align-items:center;'
+    );
     container.appendChild(temp);
   }
 }, 2500);
