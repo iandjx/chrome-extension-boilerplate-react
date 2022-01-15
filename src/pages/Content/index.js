@@ -119,6 +119,7 @@ function App() {
 
   useEffect(() => {
     chrome.storage.sync.get('ID', ({ ID }) => {
+      console.log('reloaded');
       if (ID) {
         setID(ID);
       }
@@ -159,6 +160,9 @@ function App() {
       setSuccessMessage(`Collection ${collection} added to watchlist.`);
     }
   };
+  if (ID) {
+    return <div>nice</div>;
+  }
   return (
     <>
       <div className="mt-auto">
@@ -193,6 +197,27 @@ function App() {
     </>
   );
 }
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.message === 'start') {
+    start();
+  }
+});
+
+function start() {
+  const toDelete = document.getElementById('insider');
+  toDelete.remove();
+  var temp = document.createElement('div');
+  temp.setAttribute('style', 'height: 48px; display:flex;');
+  temp.setAttribute('id', 'insider');
+
+  render(<App />, temp);
+  var container = document.querySelector(
+    '#main > div > div > div > div:nth-child(2) > div:nth-child(3)'
+  );
+  container.appendChild(temp);
+}
+
 setInterval(() => {
   if (
     !document.getElementById('insider') &&
