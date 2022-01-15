@@ -7,6 +7,8 @@ import InOpenSea from './components/InOpenSea';
 import InCollectionList from './components/InCollectionList';
 import Login from './components/Login';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 const siteRegex = /opensea\.io/;
 const collectionRegex = /opensea\.io\/collection\/(.*)/;
 const collectionsRegex = /explore-collections/;
