@@ -39,6 +39,7 @@ function App() {
 
   useEffect(() => {
     if (ID && collection) {
+      setLoading(true);
       request('http://localhost:8000/graphql', GET_WATCHLIST_BY_ACCOUNT_ID, {
         accountId: ID,
       }).then((res) => {
@@ -49,9 +50,8 @@ function App() {
 
         if (collectionExist) {
           setIsCollectionAdded(true);
-        } else {
-          setIsCollectionAdded(false);
         }
+        setLoading(false);
       });
     }
   }, [ID, collection]);
@@ -69,7 +69,6 @@ function App() {
   }, []);
 
   const handleAddToWatchlist = async (accountId, ticker) => {
-    setLoading(true);
     const res = await request(
       'http://localhost:8000/graphql',
       ADD_TO_WATCHLIST,
@@ -83,14 +82,17 @@ function App() {
     } = res;
     if (ok) {
     }
-    setLoading(false);
     setIsCollectionAdded(true);
   };
+
+  if (loading) {
+    return <div />;
+  }
 
   if (isCollectionAdded) {
     return (
       <Button
-        className="mt-3 border-0"
+        className="mb-3 border-0"
         disabled
         style={{
           width: '212px',
@@ -111,7 +113,7 @@ function App() {
   if (ID) {
     return (
       <Button
-        className="mt-3"
+        className="mb-3 "
         style={{
           width: '212px',
           height: '44px',
@@ -144,21 +146,23 @@ function start() {
   temp.setAttribute('id', 'insider');
 
   render(<App />, temp);
-  var container = document.querySelector(
-    '#main > div > div > div > div:nth-child(2) > div:nth-child(4)'
+
+  var box = document.querySelector(
+    '#main > div > div > div > div:nth-child(2) > div:nth-child(5) > div:nth-child(2)'
   );
-  container.setAttribute(
-    'style',
-    'flex-direction: column; align-items:center;'
-  );
-  container.appendChild(temp);
+  if (!box) {
+    box = document.querySelector(
+      '#main > div > div > div > div:nth-child(2) > div:nth-child(5) > div:nth-child(1)'
+    );
+  }
+  box.parentNode.insertBefore(temp, box);
 }
 
 setInterval(() => {
   if (
     !document.getElementById('insider') &&
     document.querySelector(
-      '#main > div > div > div > div:nth-child(2) > div:nth-child(4)'
+      '#main > div > div > div > div:nth-child(2) > div:nth-child(5)'
     )
   ) {
     var temp = document.createElement('div');
@@ -166,13 +170,15 @@ setInterval(() => {
     temp.setAttribute('id', 'insider');
 
     render(<App />, temp);
-    var container = document.querySelector(
-      '#main > div > div > div > div:nth-child(2) > div:nth-child(4)'
+
+    var box = document.querySelector(
+      '#main > div > div > div > div:nth-child(2) > div:nth-child(5) > div:nth-child(2)'
     );
-    container.setAttribute(
-      'style',
-      'flex-direction: column; align-items:center;'
-    );
-    container.appendChild(temp);
+    if (!box) {
+      box = document.querySelector(
+        '#main > div > div > div > div:nth-child(2) > div:nth-child(5) > div:nth-child(1)'
+      );
+    }
+    box.parentNode.insertBefore(temp, box);
   }
 }, 2500);
