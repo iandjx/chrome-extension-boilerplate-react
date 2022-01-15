@@ -30,87 +30,6 @@ const ADD_TO_WATCHLIST = gql`
   }
 `;
 
-function SetEmailModal({ setID, ...props }) {
-  const [email, setEmail] = React.useState();
-  const [loading, setLoading] = React.useState();
-  const [errorMessage, setErrorMessage] = React.useState();
-
-  const handleEmailSet = async (emailAddress, closeModal) => {
-    setLoading(true);
-    setErrorMessage();
-    const res = await request('http://localhost:8000/graphql', GET_ACCOUNT_ID, {
-      email: emailAddress,
-    }).catch((err) => {
-      const error = err.response;
-      setLoading(false);
-      setErrorMessage(error.errors[0].message);
-      return;
-    });
-
-    const {
-      getAccountByEmail: { id },
-    } = res;
-
-    await chrome.storage.sync.set({ ID: id });
-    setID(id);
-    setLoading(false);
-    closeModal();
-  };
-
-  return (
-    <Modal
-      {...props}
-      size="sm"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Insider Mobile Login
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <p>Enter your email address</p>
-        {errorMessage && (
-          <div className="alert alert-danger text-truncate mt-2" role="alert">
-            {errorMessage}
-          </div>
-        )}
-        <div className="input-group mb-3">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Email address"
-            aria-label="Email address"
-            aria-describedby="button-addon2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.code === 'Enter') {
-                handleEmailSet(email);
-              }
-            }}
-          />
-          <button
-            className="btn btn-outline-secondary"
-            style={{ width: '60px' }}
-            onClick={() => handleEmailSet(email, props.onHide)}
-          >
-            {loading ? (
-              <div className="spinner-border spinner-border-sm" role="status" />
-            ) : (
-              'Next'
-            )}
-          </button>
-        </div>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-      </Modal.Footer>
-    </Modal>
-  );
-}
-
 function App() {
   const [modalShow, setModalShow] = useState(false);
   const [ID, setID] = useState();
@@ -214,12 +133,6 @@ function App() {
           )}
         </Button>
       </div>
-
-      <SetEmailModal
-        setID={setID}
-        show={modalShow}
-        onHide={() => setModalShow(false)}
-      />
     </>
   );
 }
@@ -239,7 +152,7 @@ function start() {
 
   render(<App />, temp);
   var container = document.querySelector(
-    '#main > div > div > div > div:nth-child(2) > div:nth-child(3)'
+    '#main > div > div > div > div:nth-child(2) > div:nth-child(4)'
   );
   container.appendChild(temp);
 }
@@ -248,17 +161,18 @@ setInterval(() => {
   if (
     !document.getElementById('insider') &&
     document.querySelector(
-      '#main > div > div > div > div:nth-child(2) > div:nth-child(3)'
+      '#main > div > div > div > div:nth-child(2) > div:nth-child(4)'
     )
   ) {
     var temp = document.createElement('div');
-    temp.setAttribute('style', 'height: 48px; display:flex;');
+    temp.setAttribute('style', 'display:flex; justify-content:center; ');
     temp.setAttribute('id', 'insider');
 
     render(<App />, temp);
     var container = document.querySelector(
-      '#main > div > div > div > div:nth-child(2) > div:nth-child(3)'
+      '#main > div > div > div > div:nth-child(2) > div:nth-child(4)'
     );
+    container.setAttribute('style', 'flex-direction: column;');
     container.appendChild(temp);
   }
 }, 2500);
